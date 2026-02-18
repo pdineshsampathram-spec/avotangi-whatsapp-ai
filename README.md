@@ -1,61 +1,71 @@
 # Avotangi WhatsApp AI Stylist 🤖👞
 
-An AI-powered WhatsApp consultation workflow built with **n8n** that helps luxury footwear brands like Avotangi deliver personalized product recommendations through chat.
+![n8n](https://img.shields.io/badge/Built%20With-n8n-orange)
+![WhatsApp](https://img.shields.io/badge/Channel-WhatsApp%20API-25D366)
+![AI](https://img.shields.io/badge/AI-Google%20Gemini-blue)
+![Status](https://img.shields.io/badge/Status-Portfolio%20Project-success)
 
-Instead of browsing endlessly, customers can simply message on WhatsApp and receive curated footwear suggestions that match their needs and style.
+An AI-powered conversational commerce workflow built with **n8n** that delivers personalized luxury footwear recommendations directly through WhatsApp.
 
+This project demonstrates how a modern D2C brand can automate a concierge-style shopping experience using AI, workflow automation, and real-time product data.
 
+---
 
 ## ✨ Project Overview
 
-Modern D2C brands are moving toward conversational commerce. This project demonstrates how a simple WhatsApp conversation can be transformed into a guided, personalized shopping journey.
+Traditional e-commerce browsing is often overwhelming and impersonal. This system shows how brands can shift toward **guided conversational selling**, where customers simply message their needs and receive curated recommendations instantly.
 
 With this workflow, the system can:
 
-* 📲 Understand customer intent from chat
+* 📲 Understand customer intent from natural chat
 * 🧠 Extract structured preferences using AI
 * 💾 Remember returning users
 * 🎯 Recommend the most relevant products
-* 💬 Maintain a premium conversational tone
+* 💬 Maintain a premium, human-like tone
 
 ---
 
-## 🔄 How the System Works
+## 🏗️ Architecture Overview
 
-### High-Level Flow
+```mermaid
+flowchart LR
+    A[User on WhatsApp] --> B[WhatsApp Trigger]
+    B --> C[Normalize Payload]
+    C --> D[AI Intent Extraction]
+    D --> E[Update Conversation State]
+    E --> F[Persistent Memory]
+    F --> G[Fetch Products]
+    G --> H[Score Products]
+    H --> I[Top Recommendations]
+    I --> J[Send WhatsApp Messages]
+```
 
-1. User sends a WhatsApp message
-2. n8n receives and normalizes the input
-3. AI extracts preferences from the message
-4. Preferences are stored in memory
-5. Products are fetched from Shopify
+---
+
+## 🔄 End-to-End Flow
+
+1. User sends a message on WhatsApp
+2. n8n receives and normalizes the payload
+3. Gemini extracts customer preferences
+4. Preferences are stored in Google Sheets
+5. Shopify products are fetched live
 6. Products are scored against user needs
-7. Top recommendations are sent back
-8. A follow-up message encourages engagement
+7. Top matches are sent back via WhatsApp
+8. Follow-up message encourages further engagement
 
 ---
 
-## 🧩 Workflow Stages in Detail
+## 🧠 AI Preference Extraction
 
-### 1. WhatsApp Trigger
+The system converts free-form chat into structured data.
 
-The workflow begins when a user sends a message on WhatsApp. The trigger captures the message and converts it into a consistent structure.
+**Fields extracted**
 
-**Purpose:** ensure reliable downstream processing.
-
----
-
-### 2. AI Intent Extraction
-
-Google Gemini analyzes the user message and extracts structured preferences.
-
-**Fields extracted:**
-
-* occasion (daily, office, travel, festive, casual, formal)
-* style (minimal, premium, bold, classic)
-* comfort needs (comfortable, cushioned, soft, lightweight)
-* colors mentioned
-* budget hint (low, mid, premium)
+* occasion — daily, office, travel, festive, casual, formal
+* style — minimal, premium, bold, classic
+* comfort_needs — comfortable, cushioned, soft, lightweight
+* colors — detected color mentions
+* budget_hint — low, mid, premium
 
 **Example**
 
@@ -77,65 +87,18 @@ AI output:
 
 ---
 
-### 3. Conversation State Update
+## 🎯 Product Ranking Logic
 
-The workflow cleans and normalizes extracted values and records the last interaction time.
+Each product is scored using rule-based matching.
 
-**Purpose:** maintain consistent user context.
+| Criteria              | Score |
+| --------------------- | ----- |
+| Occasion match        | +3    |
+| Style match           | +2    |
+| Comfort match         | +2    |
+| Avotangi vendor bonus | +1    |
 
----
-
-### 4. Persistent Memory (Google Sheets)
-
-User preferences are stored so the system can recognize returning customers.
-
-**Stored fields:**
-
-* phone (identifier)
-* occasion
-* style
-* colors
-* comfort_needs
-* budget_hint
-* last_updated
-
-✅ Enables basic personalization across sessions
-⚠️ Production recommendation: hash phone numbers before storage
-
----
-
-### 5. Product Retrieval
-
-The workflow fetches live product data from the Avotangi Shopify store.
-
-**Purpose:** ensure recommendations use the latest catalog.
-
----
-
-### 6. Intelligent Product Scoring
-
-Each product is evaluated against the user’s preferences.
-
-**Scoring logic:**
-
-* Occasion match → +3
-* Style match → +2
-* Comfort match → +2
-* Vendor bonus → +1
-
-Products are sorted by score and the top three are selected.
-
----
-
-### 7. Luxury Recommendation Messaging
-
-The system sends:
-
-1. ✨ Curated intro message
-2. 👞 Product images with captions
-3. 🤍 Follow-up call to action
-
-The tone is designed to feel premium and consultative rather than robotic.
+Products are sorted by score and the **top 3 recommendations** are sent to the user.
 
 ---
 
@@ -143,19 +106,35 @@ The tone is designed to feel premium and consultative rather than robotic.
 
 ### Core capabilities
 
-* WhatsApp conversational flow
-* AI-powered preference extraction
-* Memory-based personalization
+* WhatsApp conversational interface
+* AI-powered intent extraction
+* Persistent customer memory
 * Automated product ranking
-* Multi-message recommendation sequence
+* Multi-message recommendation flow
 * Error-tolerant JSON parsing
 
-### Advanced behavior
+### Advanced workflow behavior
 
-* Fallback when user intent is weak
-* Conditional recommendation flow
-* Batch product delivery
-* Delay handling to avoid rate limits
+* Conditional fallback when intent is weak
+* Batch product delivery with loop control
+* Delay handling to avoid WhatsApp rate limits
+* Clean payload normalization layer
+
+---
+
+## 📸 Workflow Preview
+
+### Full Workflow
+
+![Workflow](assets/workflow-overview.png)
+
+### Recommendation Flow
+
+![Flow](assets/recommendation-flow.png)
+
+### Sample WhatsApp Output
+
+![Chat](assets/sample-chat.png)
 
 ---
 
@@ -177,79 +156,70 @@ The tone is designed to feel premium and consultative rather than robotic.
 
 * Shopify product feed
 
-**Memory**
+**Memory Layer**
 
 * Google Sheets
 
 ---
 
-## 📁 Repository Structure
+## ⚙️ Quick Start
 
-```
-.
-├── whatsapp_input_processor_safe.json
-└── README.md
-```
+1. Import `whatsapp_input_processor_safe.json` into n8n
+2. Configure required credentials
+3. Replace placeholder IDs
+4. Activate the workflow
+5. Send a test WhatsApp message
 
----
-
-## ⚙️ Setup Instructions
-
-### Step 1: Import the Workflow
-
-1. Open n8n
-2. Import the JSON file from this repository
-3. Save the workflow
+📘 For detailed instructions, see the setup guide below.
 
 ---
 
-### Step 2: Configure Credentials
+## 📚 Additional Documentation
 
-You must provide your own credentials for:
-
-* WhatsApp Business API
-* Google Sheets
-* Google Gemini
-
-🔐 This repository intentionally does not include any secrets.
+* 📄 [Problem Statement](docs/PROBLEM_STATEMENT.md)
+* 🛠️ [Setup Guide](docs/SETUP_GUIDE.md)
 
 ---
 
-### Step 3: Replace Placeholders
+## 🔐 Security Notes
 
-Search and replace the following values in the workflow:
+**Already implemented**
 
-* YOUR_GOOGLE_SHEET_ID
-* YOUR_WHATSAPP_PHONE_ID
-
----
-
-### Step 4: Activate and Test
-
-* Enable the workflow
-* Configure the webhook in Meta
-* Send a test WhatsApp message
-
----
-
-## 🔐 Security and Privacy
-
-**Current protections**
-
-* Credentials removed before publishing
-* No API keys in the repository
-* Basic safe parsing implemented
+* Credentials removed from repository
+* No API keys exposed
+* Structured parsing with error handling
 
 **Recommended for production**
 
 * Hash phone numbers before storage
-* Restrict Google Sheet permissions
-* Add monitoring and error alerts
+* Restrict Google Sheet access
+* Add monitoring and alerting
 * Implement stronger rate limiting
 
 ---
 
-## 💼 Business Use Cases
+## 🚧 Current Limitations
+
+* Optimized primarily for text input
+* Image and audio branches are scaffolded but not fully implemented
+* Product scoring is rule-based
+* Google Sheets is not ideal for massive scale
+* Requires WhatsApp Business approval
+
+---
+
+## 🔮 Future Improvements
+
+* Image understanding for visual preference matching
+* Audio transcription and intent extraction
+* Vector-based semantic product search
+* Multilingual support
+* Customer lifetime value tracking
+* Real-time inventory filtering
+
+---
+
+## 💼 Real-World Use Cases
 
 **Luxury D2C brands**
 
@@ -271,50 +241,14 @@ Search and replace the following values in the workflow:
 
 ---
 
-## 🧪 Example Conversation
-
-**User**
-
-> I need comfortable shoes for office use
-
-**System behavior**
-
-1. Extracts intent
-2. Stores preferences
-3. Scores products
-4. Sends curated recommendations
-5. Prompts for further refinement
-
----
-
-## 🚧 Known Limitations
-
-* Optimized mainly for text input
-* Product scoring is rule-based
-* Google Sheets is not ideal for very large scale
-* Requires WhatsApp Business approval
-
----
-
-## 🔮 Future Improvements
-
-* vector-based product search
-* RAG with product embeddings
-* cart recovery automation
-* multilingual support
-* customer lifetime value tracking
-* real-time inventory filtering
-
----
-
 ## 👨‍💻 Author
 
 **Dinesh**
 
-If this project helped you, consider giving the repository a star.
+If you found this project useful, consider giving the repository a star.
 
 ---
 
 ## 📜 License
 
-This project is intended for educational and demonstration purposes. Replace credentials and implement proper data protection before using in production.
+This project is provided for educational and demonstration purposes. Replace credentials and implement proper data protection before production deployment.
