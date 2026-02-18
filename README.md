@@ -126,15 +126,14 @@ Products are sorted by score and the **top 3 recommendations** are sent to the u
 
 ### Full Workflow
 
-![Workflow](assets/workflow-overview.png)
+![Workflow](assets/workflow-overview/workflow-overview.png)
 
 ### Recommendation Flow
 
-![Flow](assets/recommendation-flow.png)
-
+![Flow](assets/recommendation-flow/recommendation-flow.png)
 ### Sample WhatsApp Output
 
-![Chat](assets/sample-chat.png)
+![Chat](assets/sample-chat/sample-chat.png)
 
 ---
 
