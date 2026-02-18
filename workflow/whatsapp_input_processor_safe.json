@@ -1,0 +1,1087 @@
+{
+  "name": "Whatsapp Input Processor",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        64,
+        -416
+      ],
+      "id": "cf4e0042-2acb-48b3-8c3f-26554dc7957a",
+      "name": "WhatsApp Trigger",
+      "webhookId": "2f9a29bd-b89f-4042-8ead-1053edf0623c",
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.input_type }}",
+                    "rightValue": "text",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "c1be8abe-0077-43f5-b298-d91584648fec"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "text"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "efa456c6-a922-4638-b7ee-f62868fb094e",
+                    "leftValue": "={{ $json.input_type }}",
+                    "rightValue": "image",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "image"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "359aef8a-957c-4a46-8fb4-afa5701223d2",
+                    "leftValue": "={{ $json.input_type }}",
+                    "rightValue": "audio",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "audio"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        448,
+        -432
+      ],
+      "id": "4cd27c8e-fb71-48c3-9714-a0a132c6ee3f",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"phone\": {{$json.messages[0].from}},\n  \"input_type\": {{$json.messages[0].type}},\n  \"text\": {{$json.messages[0].text?.body}},\n  \"image_id\": {{$json.messages[0].image?.id}},\n  \"audio_id\": {{$json.messages[0].audio?.id}},\n  \"timestamp\": {{$now}}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        272,
+        -416
+      ],
+      "id": "cac24b88-f53a-4363-aeff-6b19f5536a17",
+      "name": "Normalized Payload"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"phone\":{{ $json.phone }} ,\n  \"input_type\": \"text\",\n  \"content\":{{ $json.text }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        592,
+        -688
+      ],
+      "id": "74a12b7b-8ab1-4a66-8277-5d37741b8259",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $json.text;\n\ntry {\n  const parsed = JSON.parse(raw);\n  return [{ json: parsed }];\n} catch (e) {\n  return [{\n    json: {\n      error: \"Failed to parse intent JSON\",\n      raw_output: raw\n    }\n  }];\n}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1248,
+        -688
+      ],
+      "id": "7953aee7-c197-4ee5-a809-057b40413cd5",
+      "name": "Prase Intent Json"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "avotangi_user_memory",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qrYbboEaAy4tjaXHd55aaH1Ty3cXOpCE4iMmC4TPmV8/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "phone ": "={{$json.phone}}",
+            " occasion": "={{ $json.text ? JSON.parse($json.text).occasion : null }}\n",
+            "style ": "={{ $json.text ? JSON.parse($json.text).style : null }}\n",
+            "colors": "={{ ($json.intent.colors || []).join(\", \") }}",
+            "comfort_needs ": "={{ $json.text ? JSON.parse($json.text).comfort_needs : null }}\n",
+            "budget_hint": "={{ $json.text ? JSON.parse($json.text).budget_hint : null }}\n",
+            "last_updated": "={{new Date().toISOString()}}"
+          },
+          "matchingColumns": [
+            "phone "
+          ],
+          "schema": [
+            {
+              "id": "phone ",
+              "displayName": "phone ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": " occasion",
+              "displayName": " occasion",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "style ",
+              "displayName": "style ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "colors",
+              "displayName": "colors",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "comfort_needs ",
+              "displayName": "comfort_needs ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "budget_hint",
+              "displayName": "budget_hint",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_updated",
+              "displayName": "last_updated",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1840,
+        -688
+      ],
+      "id": "eaafadb5-2033-490a-bedf-2b175fccf505",
+      "name": "Persistent memory",
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"phone\": {{$json.phone}},\n  \"intent\": {{$json}}\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1456,
+        -688
+      ],
+      "id": "ca9b8c6c-fd8f-4cc8-8b3a-7ce8f3598e91",
+      "name": "Structured JSON"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{$json.content}}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a luxury footwear stylist assistant.\n\nExtract customer preferences from the message and map them STRICTLY\nto the following JSON fields:\n\n- occasion: one of [daily, office, travel, festive, casual, formal]\n- style: words like minimal, premium, bold, classic\n- comfort_needs: words like comfortable, cushioned, soft, lightweight\n- colors: array of colors if mentioned\n- budget_hint: low, mid, premium (infer if possible)\n\nIf the user says \"daily use\", map it to occasion = \"daily\".\nIf the user mentions comfort, map it to comfort_needs.\n\nIf a field is not mentioned, keep it empty.\nReturn ONLY valid JSON.\n"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        704,
+        -688
+      ],
+      "id": "36bb7f9d-f0ab-4dbc-9b39-a9fe5674d759",
+      "name": "Intent Extractor"
+    },
+    {
+      "parameters": {
+        "url": "https://avotangi.store/products.json?limit=50",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2240,
+        -832
+      ],
+      "id": "87dbd2a4-4c74-41a8-a431-f0037ec88a1b",
+      "name": "Avotangi Products"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "products",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        2448,
+        -832
+      ],
+      "id": "383f1a87-1ad1-457e-b667-7a40776d674a",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const product = { ...$json };\n\nlet score = 0;\n\n// \ud83e\udde0 User preferences (from memory)\nconst occasion = $json.occasion?.toLowerCase() || \"\";\nconst style = $json.style?.toLowerCase() || \"\";\nconst comfort = $json.comfort_needs?.toLowerCase() || \"\";\nconst tags = product.tags?.join(\" \").toLowerCase() || \"\";\nconst title = product.title?.toLowerCase() || \"\";\nconst content = product.body_html?.toLowerCase() || \"\";\n\n// \ud83c\udfaf Occasion match\nif (occasion && (tags.includes(occasion) || content.includes(occasion))) {\n  score += 3;\n}\n\n// \ud83c\udfaf Style match\nif (style && (tags.includes(style) || title.includes(style))) {\n  score += 2;\n}\n\n// \ud83c\udfaf Comfort match\nif (comfort && content.includes(comfort)) {\n  score += 2;\n}\n\n// \ud83c\udff7\ufe0f Vendor bonus\nif ((product.vendor || \"\").toLowerCase().includes(\"avotangi\")) {\n  score += 1;\n}\n\nproduct.score = score;\n\nreturn { json: product };\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2864,
+        -832
+      ],
+      "id": "20b61072-8b22-400f-93fc-e48b54e1ba53",
+      "name": "Score Product",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "score",
+              "order": "descending"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.sort",
+      "typeVersion": 1,
+      "position": [
+        3104,
+        -832
+      ],
+      "id": "3cee52c8-e25c-4b32-9d06-353ebb746722",
+      "name": "Top Recommandations"
+    },
+    {
+      "parameters": {
+        "maxItems": 3
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        3312,
+        -832
+      ],
+      "id": "735a28a5-8fd0-4aca-a533-24b8515a33e3",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9fc69e18-0876-4d6f-9c8e-42d225890872",
+              "name": "score",
+              "value": 0,
+              "type": "number"
+            },
+            {
+              "id": "51cca820-cd29-488a-8d88-79ed2bb155ce",
+              "name": "url",
+              "value": "={{ \"https://avotangi.store/products/\" + $json.handle }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2656,
+        -832
+      ],
+      "id": "da6dca08-edab-4e99-9efd-ba79b13b7a0d",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "jsCode": "let message = \"\u2728 *Curated Just For You* \u2728\\n\\n\";\nmessage += \"Based on your preference for refined comfort and everyday sophistication,\\n\";\nmessage += \"I've hand-selected a few Avotangi pieces that align beautifully with your style.\\n\\n\";\nmessage += \"Take a look below \ud83d\udc47\";\n\nreturn [\n  {\n    json: {\n      reply: message\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3472,
+        -1008
+      ],
+      "id": "965eed5d-4d22-4148-acd6-68b96db13700",
+      "name": "Intro message"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        3456,
+        -720
+      ],
+      "id": "7b90d275-44af-44cd-9315-7dc7aa364e03",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "name": "Replace Me",
+      "typeVersion": 1,
+      "position": [
+        3664,
+        -448
+      ],
+      "id": "573c7f59-bdda-47e3-85a0-fb9bf1d623ef"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "YOUR_WHATSAPP_PHONE_ID",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').first().json.messages[0].from }}",
+        "messageType": "image",
+        "mediaLink": "={{$json.images?.[0]?.src}}",
+        "additionalFields": {
+          "mediaCaption": "=\ud83d\udc5e *{{ $json.title }}*\n\n\ud83d\udc8e Price: \u20b9{{ $json.variants[0].price }}\n\n\u2728 Italian leather craftsmanship\n\ud83e\udd0d Engineered everyday comfort\n\n\ud83d\udd17 Shop Now:\n{{ \"https://avotangi.store/products/\" + $json.handle }}\n"
+        }
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        3824,
+        -720
+      ],
+      "id": "2a8f955c-0fbe-417f-b692-5f0b7e7d1b55",
+      "name": "Image Sender",
+      "webhookId": "37f921ac-9002-4b6b-a339-1417e868abfa",
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "YOUR_WHATSAPP_PHONE_ID",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').first().json.messages[0].from }}",
+        "textBody": "=\ud83e\udd0d Want a more personalised recommendation?\n\nShare your occasion or style preference, and I\u2019ll find the perfect Avotangi match for you.\n",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        4320,
+        -720
+      ],
+      "id": "2db160d9-e831-411a-aae9-8982884cf1a8",
+      "name": "CTA",
+      "webhookId": "d19f3fdc-74df-4d01-8e2a-0e03c4318253",
+      "executeOnce": true,
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "YOUR_WHATSAPP_PHONE_ID",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').first().json.messages[0].from }}",
+        "textBody": "={{ $json.reply }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        3680,
+        -1024
+      ],
+      "id": "1e33f45c-6cab-48f8-97a0-a1086f9d94b2",
+      "name": "Intro MSG",
+      "webhookId": "f2c0f832-b9ab-46d4-ab96-4b3ef0dd2ff2",
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    json: {\n      reply: \"\u2728 Welcome to Avotangi \u2728\\n\\nDiscover handcrafted Italian luxury footwear designed for refined everyday comfort.\\n\\nTell me:\\n\u2022 Occasion (daily / party / formal)\\n\u2022 Comfort preference\\n\u2022 Budget range\\n\\nI'll curate something exceptional for you \ud83e\udd0d\"\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1312,
+        -896
+      ],
+      "id": "4ad7c854-c090-4a4c-aa07-8507cffac602",
+      "name": "Welcome MSG"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "dc2e042f-3c4d-4f63-bfe6-fd85bf9e8f21",
+              "leftValue": "={{ !($json.occasion && $json.comfort_needs) }}\n",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1088,
+        -800
+      ],
+      "id": "e681f55e-cebb-444d-98b6-bb05aa355772",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "YOUR_WHATSAPP_PHONE_ID",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').first().json.messages[0].from }}",
+        "textBody": "={{ $json.reply }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        1552,
+        -1024
+      ],
+      "id": "bce1299e-e579-427d-ada5-fd84b341ca30",
+      "name": "Welcome msg",
+      "webhookId": "f2c0f832-b9ab-46d4-ab96-4b3ef0dd2ff2",
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0ccded1d-0b6a-4578-a5c8-65e10e0b0622",
+              "name": "phone",
+              "value": "={{ $('WhatsApp Trigger').first().json.messages[0].from.trim() }}",
+              "type": "string"
+            },
+            {
+              "id": "02b86135-0171-4992-9156-e8bbab4539bb",
+              "name": "occasion",
+              "value": "={{    $json.text ? JSON.parse($json.text).occasion : null  }}",
+              "type": "string"
+            },
+            {
+              "id": "9d35f752-02ce-46b4-bbe5-75220813402b",
+              "name": "comfort_needs",
+              "value": "={{    $json.text ? JSON.parse($json.text).comfort_needs : null  }}",
+              "type": "string"
+            },
+            {
+              "id": "d8da84df-2ee1-4b01-b251-c2ec6c99be52",
+              "name": "style",
+              "value": "={{    $json.text ? JSON.parse($json.text).style : null  }}",
+              "type": "string"
+            },
+            {
+              "id": "d1d28f34-9132-4b23-b0a5-160ddb5b73e9",
+              "name": "last_message",
+              "value": "={{ new Date().toISOString() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        944,
+        -688
+      ],
+      "id": "56fc2b50-d947-4d0e-a9c1-92d1b270cad6",
+      "name": "Update Conversation State"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ed42c133-663c-4ae6-af35-4d3c0d661b27",
+              "leftValue": "={{ \n  !!(\n    ($json.occasion ?? '').replace(/\\n/g,'').trim() ||\n    ($json.comfort_needs ?? '').replace(/\\n/g,'').trim()\n  ) \n}}\n\n\n",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2032,
+        -816
+      ],
+      "id": "a7afdcd1-c516-4655-92a1-af0e62059e84",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Premium follow-up when intent is weak\n\nconst message = `\u2728 To curate the perfect Avotangi pair for you\u2026\n\nCould you tell me:\n\n\u2022 Occasion (daily / formal / travel)  \n\u2022 Style preference (minimal / bold / classic)  \n\u2022 Comfort needs  \n\nI\u2019ll handpick the best options \ud83e\udd0d`;\n\nreturn [\n  {\n    json: {\n      reply: message\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2192,
+        -1024
+      ],
+      "id": "bccc9526-9df6-403a-8cfa-6b1249921af9",
+      "name": "Need More Info MSG"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "YOUR_WHATSAPP_PHONE_ID",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').first().json.messages[0].from }}",
+        "textBody": "={{ $json.reply }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        2368,
+        -1024
+      ],
+      "id": "eb1b6b83-445d-4d05-b0cd-57a6eb1435a0",
+      "name": "Send message1",
+      "webhookId": "cb4e67d2-dcb4-4c52-9d47-83b4fb0f97db",
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "jsCode": "function clean(value) {\n  if (!value) return '';\n  return String(value)\n    .replace(/\\n/g, '')\n    .replace(/\\r/g, '')\n    .trim();\n}\n\nreturn {\n  json: {\n    ...$json,\n    occasion: clean($json.occasion),\n    style: clean($json.style),\n    colors: clean($json.colors),\n    comfort_needs: clean($json.comfort_needs),\n    budget_hint: clean($json.budget_hint),\n  }\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1664,
+        -688
+      ],
+      "id": "029ccda9-eb43-4ca3-82de-d2c637b3d17e",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "amount": 2
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3664,
+        -816
+      ],
+      "id": "1f09a41d-8970-47b3-9f78-4d1956bef63a",
+      "name": "Wait1",
+      "webhookId": "abe79ee5-d3a0-4f94-83c5-e457a9fa88f7"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        640,
+        -480
+      ],
+      "id": "19257232-cb64-4053-8225-3265e049834b",
+      "name": "Google Gemini Chat Model",
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "jsCode": "const product = $json;\n\nconst title = product.title || \"Premium Footwear\";\n\nconst price = product.variants?.[0]?.price\n  ? `\u20b9${product.variants[0].price}`\n  : \"Price on request\";\n\nconst handle = product.handle || \"\";\n\nconst url = handle\n  ? `https://avotangi.store/products/${handle}`\n  : \"\";\n\n// \ud83d\udd25 Clean luxury caption\nconst caption =\n`\u2728 ${title}\n\n\u2728 Italian leather craftsmanship\n\ud83e\udd0d Engineered everyday comfort\n\n\ud83d\udcb0 ${price}\n\ud83d\udecd\ufe0f Shop now: ${url}`;\n\nreturn {\n  json: {\n    ...product,\n    caption\n  }\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4032,
+        -720
+      ],
+      "id": "8871e0fa-a0b8-4309-b209-f00364a7b092",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "WhatsApp Trigger": {
+      "main": [
+        [
+          {
+            "node": "Normalized Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalized Payload": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Intent Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prase Intent Json": {
+      "main": [
+        [
+          {
+            "node": "Structured JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured JSON": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Intent Extractor": {
+      "main": [
+        [
+          {
+            "node": "Update Conversation State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Persistent memory": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Avotangi Products": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score Product": {
+      "main": [
+        [
+          {
+            "node": "Top Recommandations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Top Recommandations": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Intro message",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Score Product",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Intro message": {
+      "main": [
+        [
+          {
+            "node": "Intro MSG",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Replace Me",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replace Me": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image Sender": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Prase Intent Json",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Welcome MSG",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Welcome MSG": {
+      "main": [
+        [
+          {
+            "node": "Welcome msg",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Conversation State": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Avotangi Products",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Need More Info MSG",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Need More Info MSG": {
+      "main": [
+        [
+          {
+            "node": "Send message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Persistent memory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Image Sender",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Welcome msg": {
+      "main": [
+        []
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Intent Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "CTA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "6ea02980-183d-4d15-b7c7-e361fbebec7d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "158ae7bab15fc866a7c8d3b612c902ce810058955af21e9d92e9d5c049dcfee6"
+  },
+  "id": "weoIYwO6Alj0MwMWbCOfc",
+  "tags": []
+}
