@@ -135,6 +135,7 @@ Products are sorted by score and the **top 3 recommendations** are sent to the u
 
 ![Chat](assets/sample-chat/sample-chat.png)
 
+![Chat](assets/sample-chat/sample-chat-occasion.png)
 ---
 
 ## 🛠️ Technology Stack
