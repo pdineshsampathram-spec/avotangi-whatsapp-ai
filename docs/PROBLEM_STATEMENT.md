@@ -1,46 +1,61 @@
-# Problem Statement and Project Context
+# Problem Statement
 
-## 🎯 Problem Statement
+Learnmind.ai challenged participants to design an intelligent WhatsApp-based personal styling system for **Avotangi**, a handmade luxury footwear brand.
 
-Luxury D2C footwear brands often struggle to provide personalized shopping experiences at scale. Most customers are forced to browse static product catalogs, which can feel overwhelming and impersonal. At the same time, manual WhatsApp support does not scale well and requires significant human effort.
-
-The challenge is to design an automated system that can:
-
-* Understand customer needs from natural conversation
-* Provide personalized product recommendations
-* Maintain a premium, concierge-like experience
-* Scale without requiring constant human intervention
+The goal is to create an AI-powered consultative experience that feels like interacting with a premium personal stylist rather than a traditional chatbot.
 
 ---
 
-## 💡 Proposed Solution
+## 🎯 Objectives
 
-This project introduces an **AI-powered WhatsApp styling assistant** built using n8n. The system automates conversational commerce by combining:
+The system must:
 
-* WhatsApp Business messaging
-* AI-based intent extraction
-* Persistent customer memory
-* Intelligent product ranking
-
-The result is a guided shopping experience where customers simply describe what they need and receive curated footwear recommendations instantly.
-
----
-
-## 🚀 Key Objectives
-
-* Enable conversational product discovery on WhatsApp
-* Reduce manual customer support workload
-* Improve recommendation relevance using AI
-* Maintain a luxury brand tone in automated responses
-* Build a modular workflow that can be extended in the future
+- Understand customer preferences from natural language  
+- Maintain conversation context across messages  
+- Recommend relevant products from the live Shopify catalog  
+- Deliver responses in a refined luxury tone  
+- Support multimodal inputs such as text, images, and voice (extensible)  
+- Use native WhatsApp Business API nodes inside n8n  
 
 ---
 
-## 🔄 Current Scope
+## 🧠 Key Challenges
 
-The current implementation focuses primarily on **text-based user input**. While the workflow structure supports multiple input types, full processing for image and audio inputs is planned for future iterations.
+Designing this system involves solving several real-world problems:
 
-This makes the system flexible and extensible without overcomplicating the initial version.
+- Clean handling of different input types  
+- Context awareness across conversations  
+- Accurate product matching from live catalog  
+- Maintaining luxury brand voice  
+- Building a scalable automation architecture  
+
+---
+
+## 🚀 Proposed Solution
+
+This project implements an **AI-powered WhatsApp stylist workflow** using n8n that:
+
+- Guides users through a personalized footwear consultation  
+- Extracts structured intent using Google Gemini  
+- Stores persistent user memory in Google Sheets  
+- Scores and ranks Shopify products dynamically  
+- Sends premium WhatsApp recommendations  
+
+The system is designed to feel like a **luxury concierge experience**, not a basic chatbot.
+
+---
+
+## 📌 Current Implementation Scope
+
+The current version successfully supports:
+
+- ✅ Text-based AI consultation  
+- ✅ Context-aware memory  
+- ✅ Intelligent product scoring  
+- ✅ Premium WhatsApp messaging flow  
+- ✅ Native WhatsApp node integration  
+
+Image and voice pipelines are **architecturally supported and planned for future extension**.
 
 ---
 
@@ -48,25 +63,25 @@ This makes the system flexible and extensible without overcomplicating the initi
 
 Planned improvements include:
 
-* Image understanding for visual preference matching
-* Audio message transcription and intent extraction
-* Vector-based semantic product search
-* Multi-language support
-* Advanced customer profiling
+- Image understanding for outfit-based recommendations  
+- Voice note transcription and response handling  
+- Vector-based semantic product search  
+- Multi-language support  
+- Advanced customer profiling  
 
 ---
 
-## 🏆 Project Value
+## 🏆 Assignment Context
 
-This project demonstrates practical skills in:
+This project was built as part of the **Learnmind.ai Automation Intern Assignment**.
 
-* AI workflow design
-* Conversational commerce architecture
-* Automation using n8n
-* Personalization systems
-* Production-aware thinking
+It demonstrates practical skills in:
 
-It is intended as both a portfolio project and a foundation that can be extended into a production-ready solution.
+- AI workflow architecture  
+- Conversational commerce  
+- n8n automation design  
+- WhatsApp Business integrations  
+- Personalization systems  
 
 ---
 
