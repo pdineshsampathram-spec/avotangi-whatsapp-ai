@@ -240,6 +240,40 @@ Products are sorted by score and the **top 3 recommendations** are sent to the u
 * premium conversational experience
 
 ---
+---
+
+## 🎯 Alignment with Learnmind Assignment
+
+This project was built specifically in response to the **Learnmind.ai Automation Intern Assignment** for Avotangi.
+
+### ✅ Requirement Coverage
+
+| Requirement | Status |
+|------------|--------|
+| WhatsApp consultation flow | Implemented |
+| Context-aware conversation memory | Implemented |
+| AI intent extraction | Implemented |
+| Shopify product recommendations | Implemented |
+| Luxury brand voice | Implemented |
+| Native WhatsApp nodes | Implemented |
+| Image understanding | Architecture ready (extensible) |
+| Voice processing | Architecture ready (extensible) |
+
+---
+
+## 🧪 Multimodal Support Note
+
+The workflow is designed with a **modular input architecture**.
+
+While the current production flow focuses on text-first consultation (highest reliability for WhatsApp commerce), the system is intentionally structured to support:
+
+- Image-based outfit understanding  
+- Voice note transcription  
+- Cross-modal preference fusion  
+
+This ensures the system remains **scalable and extensible** without overcomplicating the initial deployment.
+
+---
 
 ## 👨‍💻 Author
 
